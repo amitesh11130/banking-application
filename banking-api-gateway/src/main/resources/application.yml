@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: BANKING-API-GATEWAY
+
+  output:
+    ansi:
+      enabled: always
+
+  cloud:
+    gateway:
+      routes:
+        - id: ONLINE-BANKING-SERVICE
+          uri: lb://ONLINE-BANKING-SERVICE
+          predicates:
+            - Path=/api/v1/onlineBanking/**
+          filters:
+            - AuthenticationFilter
+
+        - id: USER-DETAIL-SERVICE
+          uri: lb://USER-DETAIL-SERVICE
+          predicates:
+            - Path=/api/v1/user/**
+          filters:
+            - AuthenticationFilter
+
+        - id: BANKING-SECURITY-SERVICE
+          uri: lb://BANKING-SECURITY-SERVICE
+          predicates:
+            - Path=/api/v1/secure/**
+          filters:
+            - AuthenticationFilter
+
+      discovery:
+        locator:
+          enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    gateway:
+      enabled: true
+
+server:
+  port: 9090
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
